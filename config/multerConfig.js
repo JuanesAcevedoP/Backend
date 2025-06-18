@@ -6,7 +6,7 @@ const s3 = new AWS.S3({
   accessKeyId: process.env.AWS_ACCESS_KEY_ID,
   secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
   region: "eu1", // Asegúrate de que la región sea correcta para tu Gateway Storj
-  endpoint: "https://gateway.storjshare.io", // o tu endpoint personalizado
+  endpoint: "https://gateway.eu1.storjshare.io", // o tu endpoint personalizado
   signatureVersion: "v4"
 });
 

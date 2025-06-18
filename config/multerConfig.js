@@ -1,26 +1,31 @@
-const multer = require("multer");
-const multerS3 = require("multer-s3");
 const AWS = require("aws-sdk");
+const multer = require("multer");
 
+// Cliente S3 usando Gateway de Storj
 const s3 = new AWS.S3({
-  accessKeyId: process.env.AWS_ACCESS_KEY_ID,
-  secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
-  region: "eu1", // Asegúrate de que la región sea correcta para tu Gateway Storj
-  endpoint: "https://gateway.eu1.storjshare.io", // o tu endpoint personalizado
-  signatureVersion: "v4"
+  accessKeyId: process.env.STORJ_ACCESS_KEY,
+  secretAccessKey: process.env.STORJ_SECRET_KEY,
+  region: "eu1", // Región simulada para Storj
+  endpoint: "https://gateway.eu1.storjshare.io", // Gateway oficial o personalizado
+  signatureVersion: "v4",
+  s3ForcePathStyle: true, // Muy importante para compatibilidad con Storj
 });
 
-const upload = multer({
-  storage: multerS3({
-    s3,
-    bucket: "properties-image",
-    acl: "public-read",
-    contentType: multerS3.AUTO_CONTENT_TYPE,
-    key: function (req, file, cb) {
-      const filename = `${Date.now()}-${file.originalname}`;
-      cb(null, filename);
-    }
-  })
-});
+// multer en memoria
+const storage = multer.memoryStorage();
+const upload = multer({ storage });
 
-module.exports = { upload };
+// Función para subir el archivo manualmente
+const uploadToStorj = (buffer, filename, mimetype) => {
+  const params = {
+    Bucket: "properties-image",
+    Key: filename,
+    Body: buffer,
+    ContentType: mimetype,
+    ACL: "public-read",
+  };
+
+  return s3.upload(params).promise();
+};
+
+module.exports = { upload, uploadToStorj };

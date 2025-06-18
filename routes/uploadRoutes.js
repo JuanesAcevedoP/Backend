@@ -1,18 +1,25 @@
+// routes/uploadRoutes.js
 const express = require('express');
 const router = express.Router();
-const { upload } = require('../config/multerConfig');
+const { upload, uploadToStorj } = require('../config/multerConfig');
 const { protect } = require('../middlewares/authMiddleware');
 
-router.post('/', protect, upload.single('image'), (req, res) => {
-  console.log("Archivo recibido:", req.file);
+router.post('/', protect, upload.single('image'), async (req, res) => {
+  try {
+    if (!req.file) {
+      return res.status(400).json({ message: 'No se recibió ningún archivo' });
+    }
 
-  if (!req.file || !req.file.key || !req.file.bucket) {
-    return res.status(400).json({ message: 'No se pudo subir la imagen' });
+    const fileName = `${Date.now()}-${req.file.originalname}`;
+    const result = await uploadToStorj(req.file.buffer, fileName, req.file.mimetype);
+
+    const imageUrl = `https://gateway.eu1.storjshare.io/${result.Bucket}/${result.Key}`;
+    res.status(200).json({ url: imageUrl });
+
+  } catch (error) {
+    console.error("❌ Error al subir imagen:", error);
+    res.status(500).json({ message: 'Error al subir la imagen' });
   }
-
-  const imageUrl = `https://gateway.eu1.storjshare.io/${req.file.bucket}/${req.file.key}`;
-
-  res.status(200).json({ url: imageUrl });
 });
 
 module.exports = router;

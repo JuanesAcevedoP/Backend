@@ -3,7 +3,7 @@ const router = express.Router();
 const { upload } = require('../config/multerConfig');
 const { protect } = require('../middlewares/authMiddleware');
 
-router.post('/upload-image', protect, upload.single('image'), (req, res) => {
+router.post('/upload', protect, upload.single('image'), (req, res) => {
   if (!req.file || !req.file.key || !req.file.bucket) {
     return res.status(400).json({ message: 'No se pudo subir la imagen' });
   }

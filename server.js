@@ -21,7 +21,7 @@ app.use(express.json()); // Para recibir JSON
 app.use('/api/auth', require('./routes/authRoutes'));
 app.use('/api/properties', require('./routes/propertyRoutes'));
 app.use('/api/reviews', require('./routes/reviewRoutes'));
-app.use('/api/upload', require('./routes/uploadRoutes'));
+app.use('/api', require('./routes/uploadRoutes'));
 
 // Ruta por defecto para endpoints no existentes
 app.use((req, res) => {

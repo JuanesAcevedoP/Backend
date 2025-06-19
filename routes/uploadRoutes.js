@@ -9,12 +9,20 @@ router.post('/', protect, upload.single('image'), async (req, res) => {
       return res.status(400).json({ message: 'No se recibió ningún archivo' });
     }
 
-    const cleanName = req.file.originalname.replace(/\s+/g, '-').replace(/[()]/g, '').toLowerCase();
+    // Limpiar el nombre del archivo
+    const cleanName = req.file.originalname
+      .replace(/\s+/g, '-')
+      .replace(/[()]/g, '')
+      .toLowerCase();
+
     const fileName = `${Date.now()}-${cleanName}`;
 
+    // Subir a Storj
     const result = await uploadToStorj(req.file.buffer, fileName, req.file.mimetype);
 
-    const imageUrl = `https://link.storjshare.io/raw/${result.Bucket}/${result.Key}`;
+    // ✅ Esta es la URL válida que sí carga desde el frontend
+    const imageUrl = `https://gateway.eu1.storjshare.io/${result.Bucket}/${result.Key}`;
+
     res.status(200).json({ url: imageUrl });
 
   } catch (error) {

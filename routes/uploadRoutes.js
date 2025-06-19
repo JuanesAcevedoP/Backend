@@ -1,4 +1,3 @@
-// routes/uploadRoutes.js
 const express = require('express');
 const router = express.Router();
 const { upload, uploadToStorj } = require('../config/multerConfig');
@@ -10,13 +9,14 @@ router.post('/', protect, upload.single('image'), async (req, res) => {
       return res.status(400).json({ message: 'No se recibió ningún archivo' });
     }
 
-    const fileName = `${Date.now()}-${req.file.originalname}`;
+    const cleanName = req.file.originalname.replace(/\s+/g, '-').replace(/[()]/g, '').toLowerCase();
+    const fileName = `${Date.now()}-${cleanName}`;
+
     const result = await uploadToStorj(req.file.buffer, fileName, req.file.mimetype);
 
-    // ✅ Usar result en lugar de upload
     const imageUrl = `https://link.storjshare.io/raw/${result.Bucket}/${result.Key}`;
-
     res.status(200).json({ url: imageUrl });
+
   } catch (error) {
     console.error("❌ Error al subir imagen:", error);
     res.status(500).json({ message: 'Error al subir la imagen' });

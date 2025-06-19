@@ -13,9 +13,10 @@ router.post('/', protect, upload.single('image'), async (req, res) => {
     const fileName = `${Date.now()}-${req.file.originalname}`;
     const result = await uploadToStorj(req.file.buffer, fileName, req.file.mimetype);
 
-    const imageUrl = `https://link.storjshare.io/raw/${upload.Bucket}/${upload.Key}`;
-    res.status(200).json({ url: imageUrl });
+    // ✅ Usar result en lugar de upload
+    const imageUrl = `https://link.storjshare.io/raw/${result.Bucket}/${result.Key}`;
 
+    res.status(200).json({ url: imageUrl });
   } catch (error) {
     console.error("❌ Error al subir imagen:", error);
     res.status(500).json({ message: 'Error al subir la imagen' });

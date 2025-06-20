@@ -1,31 +1,38 @@
 const AWS = require("aws-sdk");
 const multer = require("multer");
 
-// Cliente S3 usando Gateway de Storj
 const s3 = new AWS.S3({
   accessKeyId: process.env.STORJ_ACCESS_KEY,
   secretAccessKey: process.env.STORJ_SECRET_KEY,
-  region: "eu1", // Región simulada para Storj
-  endpoint: "https://gateway.eu1.storjshare.io", // Gateway oficial o personalizado
+  region: "eu1",
+  endpoint: "https://gateway.eu1.storjshare.io",
   signatureVersion: "v4",
-  s3ForcePathStyle: true, // Muy importante para compatibilidad con Storj
+  s3ForcePathStyle: true,
 });
 
-// multer en memoria
 const storage = multer.memoryStorage();
 const upload = multer({ storage });
 
-// Función para subir el archivo manualmente
 const uploadToStorj = (buffer, filename, mimetype) => {
   const params = {
-    Bucket: "properties-image",
+    Bucket: process.env.STORJ_BUCKET,
     Key: filename,
     Body: buffer,
     ContentType: mimetype,
-    ACL: "public-read",
   };
 
   return s3.upload(params).promise();
 };
 
-module.exports = { upload, uploadToStorj };
+// ✅ NUEVO: generar URL firmada
+const generateSignedUrl = (key) => {
+  const params = {
+    Bucket: process.env.STORJ_BUCKET,
+    Key: key,
+    Expires: 60 * 60, // 1 hora
+  };
+
+  return s3.getSignedUrlPromise('getObject', params);
+};
+
+module.exports = { upload, uploadToStorj, generateSignedUrl };

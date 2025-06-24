@@ -54,7 +54,7 @@ const createProperty = async (req, res) => {
 // Obtener todas las propiedades
 const getAllProperties = async (req, res) => {
   try {
-    const properties = await Property.find();
+    const properties = await Property.find().sort({ available: -1, createdAt: -1 });
     res.status(200).json(properties);
   } catch (error) {
     console.error('Error al obtener propiedades:', error);

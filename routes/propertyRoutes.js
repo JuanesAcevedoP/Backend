@@ -2,6 +2,7 @@ const express = require('express');
 const router = express.Router();
 const { upload, uploadMiddleware } = require('../config/multerConfig');
 const ExcelJS = require('exceljs');
+const Property = require('../models/Property');
 
 const {
   createProperty,

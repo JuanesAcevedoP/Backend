@@ -1,5 +1,6 @@
 const Property = require('../models/Property');
 
+
 // Crear propiedad
 const createProperty = async (req, res) => {
   try {

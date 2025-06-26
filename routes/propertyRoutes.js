@@ -1,8 +1,8 @@
-const express = require('express');
+const express = require("express");
 const router = express.Router();
-const { upload, uploadMiddleware } = require('../config/multerConfig');
-const ExcelJS = require('exceljs');
-const Property = require('../models/Property');
+const { upload, uploadMiddleware } = require("../config/multerConfig");
+const ExcelJS = require("exceljs");
+const Property = require("../models/Property");
 
 const {
   createProperty,
@@ -11,52 +11,40 @@ const {
   getPropertyByCode,
   deleteProperty,
   updateProperty,
-} = require('../controllers/propertyController');
+} = require("../controllers/propertyController");
 
-const { protect } = require('../middlewares/authMiddleware');
+const { protect } = require("../middlewares/authMiddleware");
 
 // Públicas
-router.get('/', getAllProperties);
-router.get('/featured', getFeaturedProperties);
-router.get('/:code', getPropertyByCode);
+router.get("/", getAllProperties);
 
-// Crear propiedad (ya NO se sube imagen aquí)
-router.post('/create', protect, createProperty);
-
-// Actualizar propiedad (opcionalmente puede cambiar imagen)
-router.put(
-  '/:id',
-  protect,
-  updateProperty
-);
-
-router.delete('/:id', protect, deleteProperty);
+router.get("/featured", getFeaturedProperties);
 
 // Exportar propiedades a Excel
-router.get('/export', protect, async (req, res) => {
+router.get("/export", protect, async (req, res) => {
   try {
     const properties = await Property.find();
 
     const workbook = new ExcelJS.Workbook();
-    const worksheet = workbook.addWorksheet('Propiedades');
+    const worksheet = workbook.addWorksheet("Propiedades");
 
     // Encabezados
     worksheet.columns = [
-      { header: 'Código', key: 'code', width: 15 },
-      { header: 'Título', key: 'title', width: 30 },
-      { header: 'Tipo', key: 'type', width: 15 },
-      { header: 'Precio', key: 'price', width: 15 },
-      { header: 'Habitaciones', key: 'bedrooms', width: 15 },
-      { header: 'Baños', key: 'bathrooms', width: 15 },
-      { header: 'Área', key: 'area', width: 10 },
-      { header: 'Ciudad', key: 'city', width: 20 },
-      { header: 'Sector', key: 'sector', width: 20 },
-      { header: 'Ubicación', key: 'location', width: 30 },
-      { header: 'Disponible', key: 'available', width: 12 },
-      { header: 'Destacada', key: 'featured', width: 12 },
-      { header: 'Arriendo', key: 'rent', width: 12 },
-      { header: 'WhatsApp Asesor', key: 'advisorWhatsapp', width: 20 },
-      { header: 'URL Imagen', key: 'image', width: 40 },
+      { header: "Código", key: "code", width: 15 },
+      { header: "Título", key: "title", width: 30 },
+      { header: "Tipo", key: "type", width: 15 },
+      { header: "Precio", key: "price", width: 15 },
+      { header: "Habitaciones", key: "bedrooms", width: 15 },
+      { header: "Baños", key: "bathrooms", width: 15 },
+      { header: "Área", key: "area", width: 10 },
+      { header: "Ciudad", key: "city", width: 20 },
+      { header: "Sector", key: "sector", width: 20 },
+      { header: "Ubicación", key: "location", width: 30 },
+      { header: "Disponible", key: "available", width: 12 },
+      { header: "Destacada", key: "featured", width: 12 },
+      { header: "Arriendo", key: "rent", width: 12 },
+      { header: "WhatsApp Asesor", key: "advisorWhatsapp", width: 20 },
+      { header: "URL Imagen", key: "image", width: 40 },
     ];
 
     // Agregar filas
@@ -72,9 +60,9 @@ router.get('/export', protect, async (req, res) => {
         city: property.city,
         sector: property.sector,
         location: property.location,
-        available: property.available ? 'Sí' : 'No',
-        featured: property.featured ? 'Sí' : 'No',
-        rent: property.rent ? 'Sí' : 'No',
+        available: property.available ? "Sí" : "No",
+        featured: property.featured ? "Sí" : "No",
+        rent: property.rent ? "Sí" : "No",
         advisorWhatsapp: property.advisorWhatsapp,
         image: property.image,
       });
@@ -82,21 +70,30 @@ router.get('/export', protect, async (req, res) => {
 
     // Encabezados de respuesta
     res.setHeader(
-      'Content-Type',
-      'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+      "Content-Type",
+      "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
     );
     res.setHeader(
-      'Content-Disposition',
-      'attachment; filename=propiedades.xlsx'
+      "Content-Disposition",
+      "attachment; filename=propiedades.xlsx"
     );
 
     await workbook.xlsx.write(res);
     res.end();
   } catch (error) {
-    console.error('❌ Error al exportar propiedades:', error);
-    res.status(500).json({ message: 'Error al exportar propiedades' });
+    console.error("❌ Error al exportar propiedades:", error);
+    res.status(500).json({ message: "Error al exportar propiedades" });
   }
 });
 
+router.get("/:code", getPropertyByCode);
+
+// Crear propiedad (ya NO se sube imagen aquí)
+router.post("/create", protect, createProperty);
+
+// Actualizar propiedad (opcionalmente puede cambiar imagen)
+router.put("/:id", protect, updateProperty);
+
+router.delete("/:id", protect, deleteProperty);
 
 module.exports = router;
